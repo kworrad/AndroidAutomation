@@ -1,26 +1,39 @@
 # General Functions:
 
-When(/^I swipe right to left$/) do
+When(/^I swipe "([^"]*)"$/) do |theWay|
   size = $driver.window_size
-  Appium::TouchAction.new.press(x: size.width-1, y: size.height/2).move_to(x: -(size.width-1), y: 0).release.perform
+  if theWay == "up"
+    Appium::TouchAction.new.press(x: size.width/2, y: size.height-65).move_to(x: 0, y:-(size.height-65)).release.perform
+  elsif theWay == "down"
+    Appium::TouchAction.new.press(x: size.width/2, y: size.height/5).move_to(x: 0, y: size.height/1.5).release.perform
+  elsif theWay == "right to left"
+    Appium::TouchAction.new.press(x: size.width-1, y: size.height/2).move_to(x: -(size.width-1), y: 0).release.perform
+  elsif theWay == "left to right"
+    Appium::TouchAction.new.press(x: 0, y: size.height/2).move_to(x: size.width-1, y: 0).release.perform
+  else
+    puts "direction not found"
+    fail
+  end
 end
 
-When(/^I swipe left to right$/) do
-  size = $driver.window_size
-  Appium::TouchAction.new.press(x: 0, y: size.height/2).move_to(x: size.width-1, y: 0).release.perform
-end
+#When(/^I swipe right to left$/) do
+#  size = $driver.window_size
+#  Appium::TouchAction.new.press(x: size.width-1, y: size.height/2).move_to(x: -(size.width-1), y: 0).release.perform
+#end
+#When(/^I swipe left to right$/) do
+#  size = $driver.window_size
+#  Appium::TouchAction.new.press(x: 0, y: size.height/2).move_to(x: size.width-1, y: 0).release.perform
+#end
+#When(/^I swipe up$/) do
+#  @size = $driver.window_size
+#  Appium::TouchAction.new.press(x: @size.width/2, y: @size.height-65).move_to(x: 0, y:-(@size.height-65)).release.perform
+#end
+#When(/^I swipe down$/) do
+#  @size = $driver.window_size
+#  Appium::TouchAction.new.press(x: @size.width/2, y: @size.height/5).move_to(x: 0, y: @size.height/1.5).release.perform
+#end
 
- When(/^I swipe up$/) do
-  @size = $driver.window_size
-  Appium::TouchAction.new.press(x: @size.width/2, y: @size.height-65).move_to(x: 0, y:-(@size.height-65)).release.perform
-end
-
-When(/^I swipe down$/) do
-  @size = $driver.window_size
-  Appium::TouchAction.new.press(x: @size.width/2, y: @size.height/5).move_to(x: 0, y: @size.height/1.5).release.perform
-end
-
-When(/^I swipe down phone settings$/) do
+When(/^I open phone settings$/) do
   $driver.open_notifications
 end
 
@@ -34,12 +47,26 @@ When(/^I press home$/) do
   sleep(4)
 end
 
-When(/^I open recent app$/) do
+When(/^I open recent app "([^"]*)"$/) do |application|
   $driver.press_keycode(187)
-  wait = Selenium::WebDriver::Wait.new :timeout => 15
-  wait.until { $driver.find_element(:accessibility_id, "dubcandy").displayed? }
-  app = $driver.find_element :accessibility_id, "dubcandy"
-  app.click
+  begin
+    wait = Selenium::WebDriver::Wait.new :timeout => 15
+    wait.until { $driver.find_element(:id, application).displayed? }
+    app = $driver.find_element :id, application
+    app.click
+  rescue
+    begin
+      wait = Selenium::WebDriver::Wait.new :timeout => 15
+      wait.until { $driver.find_element(:xpath, application).displayed? }
+      app = $driver.find_element :xpath, application
+      app.click
+    rescue
+      wait = Selenium::WebDriver::Wait.new :timeout => 15
+      wait.until { $driver.find_element(:accessibility_id, application).displayed? }
+      app = $driver.find_element :accessibility_id, application
+      app.click
+    end
+  end
 end
 
 When(/^I close and open app$/) do
@@ -51,33 +78,45 @@ end
 # Select:
 
 When(/^I press on "([^"]*)"$/) do |function|
-  wait = Selenium::WebDriver::Wait.new :timeout => 15
-  wait.until { $driver.find_element(:id, function).displayed? }
-  button = $driver.find_element :id, function
-  button.click
+  begin  
+    wait = Selenium::WebDriver::Wait.new :timeout => 15
+    wait.until { $driver.find_element(:id, function).displayed? }
+    button = $driver.find_element :id, function
+    button.click
+  rescue
+    begin
+      wait = Selenium::WebDriver::Wait.new :timeout => 15
+      wait.until { $driver.find_element(:xpath, function).displayed? }
+      button = $driver.find_element :xpath, function
+      button.click
+    rescue
+      wait = Selenium::WebDriver::Wait.new :timeout => 15
+      wait.until { $driver.find_element(:accessibility_id, function).displayed? }
+      button = $driver.find_element :accessibility_id, function
+      button.click
+    end
+  end
 end
 
 When(/^I press on back button$/) do
   $driver.back()
 end
 
-When(/^I press on value "([^"]*)"$/) do |value|
-  pending
-end
-
-When(/^I press on xpath "([^"]*)"$/) do |value|
-  wait = Selenium::WebDriver::Wait.new :timeout => 15
-  wait.until { $driver.find_element(:xpath, value).displayed? }
-  button = $driver.find_element :xpath, value
-  button.click
-end
-
-When(/^I press on access_id "([^"]*)"$/) do |value|
-  wait = Selenium::WebDriver::Wait.new :timeout => 15
-  wait.until { $driver.find_element(:accessibility_id, value).displayed? }
-  button = $driver.find_element :accessibility_id, value
-  button.click
-end
+#When(/^I press on value "([^"]*)"$/) do |value|
+#  pending
+#end
+#When(/^I press on xpath "([^"]*)"$/) do |value|
+#  wait = Selenium::WebDriver::Wait.new :timeout => 15
+#  wait.until { $driver.find_element(:xpath, value).displayed? }
+#  button = $driver.find_element :xpath, value
+#  button.click
+#end
+#When(/^I press on access_id "([^"]*)"$/) do |value|
+#  wait = Selenium::WebDriver::Wait.new :timeout => 15
+#  wait.until { $driver.find_element(:accessibility_id, value).displayed? }
+#  button = $driver.find_element :accessibility_id, value
+#  button.click
+#end
 
 # Find:
 
@@ -111,16 +150,13 @@ end
 #  wait = Selenium::WebDriver::Wait.new :timeout => 15
 #  wait.until { $driver.find_element(:id, function).displayed? }
 #end
-
 #Then(/^I see access_id "([^"]*)"$/) do |value|
 #  wait = Selenium::WebDriver::Wait.new :timeout => 15
 #  wait.until { $driver.find_element(:accessibility_id, value).displayed? }
 #end
-
 #Then(/^I see value "([^"]*)"$/) do |value|
 #  pending
 #end
-
 #When(/^I see xpath "([^"]*)"$/) do |value|
 #  wait = Selenium::WebDriver::Wait.new :timeout => 15
 #  wait.until { $driver.find_element(:xpath, value).displayed? }
