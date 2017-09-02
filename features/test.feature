@@ -1,1 +1,3 @@
+Feature: AndroidAutomation
 
+Scenario: Tests
