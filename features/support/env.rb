@@ -4,9 +4,9 @@ require 'appium_lib'
 desired_caps = {
   caps: {
     platformName: 'Android',
-    deviceName: 'Samsung SM-N900W8 (Android 4.4.2, API 19)',
+    deviceName: '.....',
     appPackage: 'com.dubdub.dubcandy',
-    appActivity: 'com.dubrise.dubcash.splash.view.SplashActivity',
+    appActivity: '.....',
     noReset: 'true',
     platformVersion: '4.4.2',
     exported: 'true'
